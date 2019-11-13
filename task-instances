@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+if [[ $# < 2 ]]; then
+	echo usage: $0 CLUSTER SERVICE
+	exit 1
+fi
+
+cluster=$1
+service=$2
+
+tasks=$(aws ecs list-tasks --cluster $cluster --service-name $service |jq -r '.taskArns[]' |sed 100q)
+instances=$(aws ecs describe-tasks --cluster $cluster --tasks $tasks | jq -r '.tasks[].containerInstanceArn')
+aws ecs describe-container-instances --cluster $cluster --container-instances $instances |jq -r '.containerInstances[].ec2InstanceId'

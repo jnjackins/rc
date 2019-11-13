@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+if [[ $# < 2 ]]; then
+	echo usage: $0 CLUSTER SERVICE
+	exit 1
+fi
+
+cluster=$1
+service=$2
+shift; shift
+ids=$(task-instances $cluster $service)
+array=($ids)
+ssh-id ${array[0]} $@

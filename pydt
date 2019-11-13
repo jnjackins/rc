@@ -1,0 +1,9 @@
+#!/bin/sh
+
+pkill 'Play Your Damn Turn Client'
+sleep 1
+
+dir='/Users/jnj/Library/Application Support/Play Your Damn Turn Client/storage'
+cd "$dir"
+ln -sf configData.${1}.json configData.json
+open -a 'Play Your Damn Turn Client'

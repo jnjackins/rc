@@ -1,0 +1,11 @@
+#!/bin/sh
+
+ip_addr=$(aws ec2 describe-instances \
+  --filters Name=tag:Environment,Values=$SEGMENT_ENV \
+            Name=tag:Cluster,Values=workbench \
+            Name=tag:Team,Values=$SEGMENT_TEAM \
+            Name=instance-state-name,Values=running \
+            Name=tag-key,Values=aws:autoscaling:groupName \
+            --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
+
+ssh $ip_addr $@

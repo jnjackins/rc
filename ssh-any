@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [[ $# < 1 ]]; then
+	echo usage: $0 CLUSTER ...
+	exit 1
+fi
+
+env=$SEGMENT_ENV
+cluster=$1
+shift
+
+tmpfile=mktemp
+aws ec2 describe-instances --filter Name=tag-value,Values=$cluster Name=instance-state-name,Values=running >$tmpfile
+len=$(jq '[.Reservations[].Instances] | add | length' <$tmpfile)
+rand=$((RANDOM % $len))
+ip=$(jq -r --arg n $rand '([.Reservations[].Instances] | add)[$n | tonumber] | .NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress' <$tmpfile)
+rm $tmpfile
+
+if test "$ip" = "null"; then
+	echo error getting ip
+	exit 1
+fi
+
+echo "using $ip (instance #$rand of $len)"
+ssh -o "StrictHostKeyChecking no" -q $ip $@

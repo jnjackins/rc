@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [[ $# < 1 ]]; then
+	echo usage: $0 CLUSTER ...
+	exit 1
+fi
+
+env=$SEGMENT_ENV
+cluster=$1
+shift
+
+id=$(aws ec2 describe-instances --filter Name=tag-value,Values=$cluster Name=instance-state-name,Values=running |jq -r '[.Reservations[].Instances[]] | sort_by(.LaunchTime)[0] | .InstanceId')
+
+if test "$id" = "null"; then
+	echo error getting id
+	exit 1
+fi
+
+echo "destroying $id"
+
+aws ec2 terminate-instances --instance-ids="$id"

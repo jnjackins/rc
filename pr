@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+branch=$(git branch | grep \* | cut -d ' ' -f2)
+repo=$(basename $(git remote get-url origin) .git)
+
+if test -z "$branch"; then
+	exit 1
+fi
+
+if test -z "$repo"; then
+	exit 1
+fi
+
+git push -u origin $branch
+open "https://github.com/segmentio/$repo/pull/new/$branch"

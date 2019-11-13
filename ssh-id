@@ -1,0 +1,5 @@
+#!/bin/sh
+
+ip=$(instance-ip $1)
+shift
+ssh "$ip" $@
